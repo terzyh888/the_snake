@@ -1,4 +1,4 @@
-from random import choice, randint
+from random import choice
 import pygame
 
 # Инициализация PyGame:
@@ -18,9 +18,8 @@ RIGHT = (GRID_SIZE, 0)
 
 # Цвета:
 BOARD_BACKGROUND_COLOR = (0, 0, 0)  # Черный (фон)
-BORDER_COLOR = (93, 216, 228)  # Серо-голубой для границ ячеек (опционально)
-APPLE_COLOR = (255, 0, 0)  # Красный (яблоко)
-SNAKE_COLOR = (0, 255, 0)  # Зеленый (змейка)
+APPLE_COLOR = (255, 0, 0)          # Красный (яблоко)
+SNAKE_COLOR = (0, 255, 0)          # Зеленый (змейка)
 
 # Скорость движения змейки:
 SPEED = 20
@@ -49,7 +48,6 @@ class GameObject:
         """Вспомогательный метод для отрисовки одной ячейки (квадрата)."""
         rect = pygame.Rect(position, (GRID_SIZE, GRID_SIZE))
         pygame.draw.rect(surface, color, rect)
-        # Опционально можно рисовать тонкую рамку вокруг ячейки для сетки:
         pygame.draw.rect(surface, BOARD_BACKGROUND_COLOR, rect, 1)
 
 
@@ -98,20 +96,17 @@ class Snake(GameObject):
         head_x, head_y = self.get_head_position()
         dir_x, dir_y = self.direction
 
-        # Вычисление новой позиции с проходом сквозь стены (через остаток от деления)
         new_head = (
             (head_x + dir_x) % SCREEN_WIDTH,
             (head_y + dir_y) % SCREEN_HEIGHT
         )
 
-        # Проверка на самоукус (если врезалась в хвост)
         if len(self.positions) > 1 and new_head in self.positions[1:]:
             self.reset()
             return
 
         self.positions.insert(0, new_head)
 
-        # Если длина не увеличилась, удаляем последний хвост
         if len(self.positions) > self.length:
             self.last = self.positions.pop()
         else:
@@ -119,10 +114,8 @@ class Snake(GameObject):
 
     def draw(self, surface):
         """Отрисовывает змейку на экране, затирая след."""
-        # Отрисовка головы
         self.draw_cell(surface, self.get_head_position(), self.body_color)
 
-        # Затирание последнего сегмента (следа), если он был удален
         if self.last:
             self.draw_cell(surface, self.last, BOARD_BACKGROUND_COLOR)
 
@@ -134,12 +127,12 @@ class Snake(GameObject):
         """Сбрасывает змейку в начальное состояние."""
         self.length = 1
         self.positions = [(SCREEN_WIDTH // 2, SCREEN_HEIGHT // 2)]
-        self.direction = CHOICE_RANDOM_DIRECTION()
+        self.direction = choice_random_direction()
         self.next_direction = None
         self.last = None
 
 
-def CHOICE_RANDOM_DIRECTION():
+def choice_random_direction():
     """Вспомогательная функция для выбора случайного стартового направления."""
     return choice([UP, DOWN, LEFT, RIGHT])
 
@@ -169,7 +162,6 @@ def main():
     snake = Snake()
     apple = Apple(snake.positions)
 
-    # Очищаем экран при старте
     screen.fill(BOARD_BACKGROUND_COLOR)
 
     while True:
@@ -178,16 +170,13 @@ def main():
         snake.update_direction()
         snake.move()
 
-        # Проверка, съела ли змейка яблоко
         if snake.get_head_position() == apple.position:
             snake.length += 1
             apple.randomize_position(snake.positions)
 
-        # Отрисовка объектов
         snake.draw(screen)
         apple.draw(screen)
 
-        # Обновление экрана
         pygame.display.update()
 
 
